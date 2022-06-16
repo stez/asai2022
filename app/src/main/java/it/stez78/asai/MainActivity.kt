@@ -16,9 +16,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.lifecycleScope
 import it.stez78.asai.databinding.ActivityMainBinding
 import it.stez78.asai.ml.StreetSignalModel90TunedNoNormMetadata
 import it.stez78.asai.ml.StreetSignsPredictor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.tensorflow.lite.support.image.TensorImage
 
 
@@ -62,32 +65,40 @@ class MainActivity : AppCompatActivity() {
 
         binding.evaluateButton.isEnabled = false
         binding.evaluateButton.setOnClickListener {
-            predictor.setActiveModel(spinner.selectedItemPosition)
-            val probability = predictor.getProbability(binding.anteprima.drawable.toBitmap())
-            val spannedResult = SpannableStringBuilder()
-            probability
-                .sortedByDescending { p -> p.score }
-                .take(5)
-                .forEachIndexed { index, p ->
-                    val start = spannedResult.length
-                    spannedResult.append(p.label)
-                    spannedResult.setSpan(
-                        RelativeSizeSpan(p.score/5),
-                        start,
-                        spannedResult.length,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    if (index == 0){
+            binding.evaluateButton.isEnabled = false
+            binding.takePhotoButton.isEnabled = false
+            binding.outputText.text = "Guessing ..."
+            lifecycleScope.launch(Dispatchers.Main){
+                predictor.setActiveModel(spinner.selectedItemPosition)
+                val probability = predictor.getProbability(binding.anteprima.drawable.toBitmap())
+                val spannedResult = SpannableStringBuilder()
+                probability
+                    .sortedByDescending { p -> p.score }
+                    .take(5)
+                    .forEachIndexed { index, p ->
+                        val start = spannedResult.length
+                        spannedResult.append(p.label)
                         spannedResult.setSpan(
-                            StyleSpan(android.graphics.Typeface.BOLD),
+                            RelativeSizeSpan(p.score/5),
                             start,
                             spannedResult.length,
                             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                         )
+                        if (index == 0){
+                            spannedResult.setSpan(
+                                StyleSpan(android.graphics.Typeface.BOLD),
+                                start,
+                                spannedResult.length,
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                            )
+                        }
+                        spannedResult.append("\n")
                     }
-                    spannedResult.append("\n")
-                }
-            binding.outputText.text = spannedResult
+                binding.outputText.text = spannedResult
+                binding.evaluateButton.isEnabled = true
+                binding.takePhotoButton.isEnabled = true
+            }
+
         }
     }
 
