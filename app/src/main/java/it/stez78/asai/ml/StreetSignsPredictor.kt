@@ -8,27 +8,42 @@ import org.tensorflow.lite.support.label.Category
 class StreetSignsPredictor(private val context: Context) {
 
      enum class AvailableModels {
-        MOBILENETV2_80,
-        MOBILENETV2_TUNED_90,
-    }
+         ROADSIGNS_MOBILENETV2_BASE,
+         ROADSIGNS_MOBILENETV2_TUNED,
+         ROADSIGNS_MOBILENETV3_BASE,
+         ROADSIGNS_MOBILENETV3_TUNED,
+     }
 
-    private var activeModel = AvailableModels.MOBILENETV2_80
+    private var activeModel = AvailableModels.ROADSIGNS_MOBILENETV2_BASE
 
     fun getProbability(bitmap: Bitmap, normalized: Boolean = false) : List<Category>{
         val image = TensorImage.fromBitmap(bitmap)
         val probability = mutableListOf<Category>()
         when (activeModel){
-            AvailableModels.MOBILENETV2_80 -> {
-                val model = ModelStandard80WithLabelsMetadata.newInstance(context)
+            AvailableModels.ROADSIGNS_MOBILENETV2_BASE -> {
+                val model = RoadsignsMobilenetv2BaseMetadata.newInstance(context)
                 val outputs = model.process(image)
                 model.close()
                 probability.addAll(outputs.probabilityAsCategoryList)
             }
-            AvailableModels.MOBILENETV2_TUNED_90 -> {
+            AvailableModels.ROADSIGNS_MOBILENETV2_TUNED -> {
                 val model = StreetSignalModel90TunedNoNormMetadata.newInstance(context)
                 val outputs = model.process(image)
                 model.close()
-                probability.addAll(outputs.probabilityAsCategoryList)            }
+                probability.addAll(outputs.probabilityAsCategoryList)
+            }
+            AvailableModels.ROADSIGNS_MOBILENETV3_BASE -> {
+                val model = RoadsignsMobilenetv3BaseMetadata.newInstance(context)
+                val outputs = model.process(image)
+                model.close()
+                probability.addAll(outputs.probabilityAsCategoryList)
+            }
+            AvailableModels.ROADSIGNS_MOBILENETV3_TUNED -> {
+                val model = RoadsignsMobilenetv3V2TunedMetadata.newInstance(context)
+                val outputs = model.process(image)
+                model.close()
+                probability.addAll(outputs.probabilityAsCategoryList)
+            }
         }
         if (!normalized){
             return probability

@@ -16,13 +16,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import it.stez78.asai.databinding.ActivityMainBinding
-import it.stez78.asai.ml.StreetSignalModel90TunedNoNormMetadata
 import it.stez78.asai.ml.StreetSignsPredictor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.tensorflow.lite.support.image.TensorImage
 
 
 class MainActivity : AppCompatActivity() {
@@ -50,6 +49,7 @@ class MainActivity : AppCompatActivity() {
                 result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
                 binding.outputText.text = ""
+                binding.primaryClass.text = "-"
                 result.data?.extras?.get("drawableId")?.let { drawableId ->
                     val bitmap = ContextCompat.getDrawable(baseContext, drawableId as Int)?.toBitmap();
                     binding.anteprima.setImageBitmap(bitmap)
@@ -70,8 +70,9 @@ class MainActivity : AppCompatActivity() {
             binding.outputText.text = "Guessing ..."
             lifecycleScope.launch(Dispatchers.Main){
                 predictor.setActiveModel(spinner.selectedItemPosition)
-                val probability = predictor.getProbability(binding.anteprima.drawable.toBitmap())
+                val probability = predictor.getProbability(binding.anteprima.drawable.toBitmap(),true)
                 val spannedResult = SpannableStringBuilder()
+                var predicted = ""
                 probability
                     .sortedByDescending { p -> p.score }
                     .take(5)
@@ -79,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                         val start = spannedResult.length
                         spannedResult.append(p.label)
                         spannedResult.setSpan(
-                            RelativeSizeSpan(p.score/5),
+                            RelativeSizeSpan(p.score * 3),
                             start,
                             spannedResult.length,
                             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -91,14 +92,15 @@ class MainActivity : AppCompatActivity() {
                                 spannedResult.length,
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                             )
+                            predicted = p.label
                         }
                         spannedResult.append("\n")
                     }
                 binding.outputText.text = spannedResult
                 binding.evaluateButton.isEnabled = true
                 binding.takePhotoButton.isEnabled = true
+                binding.primaryClass.text = predicted
             }
-
         }
     }
 

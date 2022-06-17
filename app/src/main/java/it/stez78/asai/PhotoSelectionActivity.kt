@@ -4,12 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.GridLayout
 import androidx.recyclerview.widget.GridLayoutManager
-import it.stez78.asai.databinding.ActivityMainBinding
-import it.stez78.asai.databinding.ActivityMainBinding.inflate
 import it.stez78.asai.databinding.ActivityPhotoSelectionBinding
-import it.stez78.asai.databinding.ActivityPhotoSelectionBinding.inflate
 
 class PhotoSelectionActivity : AppCompatActivity() {
 
@@ -21,8 +17,10 @@ class PhotoSelectionActivity : AppCompatActivity() {
         R.drawable.test2,
         R.drawable.test3,
         R.drawable.test4,
-        R.drawable.test5
-    )
+        R.drawable.test5,
+        R.drawable.test6,
+        R.drawable.test7,
+        )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

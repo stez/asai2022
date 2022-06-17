@@ -11,7 +11,9 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 
     <string-array name="available_models">
-        <item>RoadSigns-MobileNetV2</item>
-        <item>RoadSigns-MobileNetV2Tuned</item>
+        <item>RoadSigns-MobileNetV2-BASE</item>
+        <item>RoadSigns-MobileNetV2-TUNED</item>
+        <item>RoadSigns-MobileNetV3-BASE</item>
+        <item>RoadSigns-MobileNetV3-TUNED</item>
     </string-array>
 </resources>
